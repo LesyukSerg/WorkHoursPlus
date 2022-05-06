@@ -13,7 +13,7 @@
             "Sat" => [10, 11, 12, 13, 14],
         ];
         private array $weekends = ["Sun"];
-        private array $holidays = ["2022-05-28"];
+        private array $holidays = ["2022-04-01"];
 
         public function addHours($date, $hours): string
         {
@@ -25,6 +25,17 @@
             }
 
             return date("Y-m-d H:i", $time);
+        }
+
+        public function endOfWorkingDay($date): string
+        {
+            $time = strtotime($date);
+            $this->addHour($time);
+
+            $day = date("D", $time);
+            $endH = end($this->workHours[$day]);
+
+            return date("Y-m-d $endH:00", $time);
         }
 
         private function addHour(&$time): void
@@ -51,6 +62,22 @@
         {
             //echo date("Y-m-d", $time) . "--";
             return in_array(date("Y-m-d", $time), $this->holidays);
+        }
+
+        public function countWorkHours($dateStart, $dateEnd): int
+        {
+            $timeStart = strtotime($dateStart);
+            $timeEnd = strtotime($dateEnd);
+            $hours = 0;
+
+            while ($timeStart < $timeEnd) {
+                $this->addHour($timeStart);
+                $hours++;
+            }
+
+            if ($timeStart > $timeEnd) $hours--;
+
+            return $hours;
         }
     }
 
